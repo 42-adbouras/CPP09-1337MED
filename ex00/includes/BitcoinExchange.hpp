@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BitcoinExchange.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/21 17:01:59 by adbouras          #+#    #+#             */
-/*   Updated: 2025/06/22 17:26:23 by adbouras         ###   ########.fr       */
+/*   Updated: 2025/06/22 22:12:32 by codespace        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <map>
 #include <algorithm>
 #include <iomanip>
+#include <limits>
 
 typedef std::string			str;
 typedef std::stringstream	sstream;
