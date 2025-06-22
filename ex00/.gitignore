@@ -1,0 +1,12 @@
+*
+
+!*.cpp
+!*.hpp
+!*.tpp
+
+!ex*/
+!source/
+!includes/
+!Makefile
+!README.md
+!.gitignore
