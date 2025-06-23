@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BitcoinExchange.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
+/*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/21 17:01:59 by adbouras          #+#    #+#             */
-/*   Updated: 2025/06/22 22:12:32 by codespace        ###   ########.fr       */
+/*   Updated: 2025/06/23 13:25:39 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ typedef std::stringstream	sstream;
 class BitcoinExchange
 {
 private:
-	static std::map<str, float>	_exchangeRates;
+	static std::map<str, double>	_exchangeRates;
 	static std::ifstream		_input;
 
 	BitcoinExchange( void ) {}

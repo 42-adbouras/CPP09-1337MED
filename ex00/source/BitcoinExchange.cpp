@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   BitcoinExchange.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
+/*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/21 17:01:55 by adbouras          #+#    #+#             */
-/*   Updated: 2025/06/22 22:43:54 by codespace        ###   ########.fr       */
+/*   Updated: 2025/06/23 16:33:13 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "BitcoinExchange.hpp"
 
-std::map<str, float>	BitcoinExchange::_exchangeRates;
+std::map<str, double>	BitcoinExchange::_exchangeRates;
 std::ifstream			BitcoinExchange::_input;
 
 void	BitcoinExchange::openFiles( char *arg )
@@ -30,7 +30,7 @@ void	BitcoinExchange::openFiles( char *arg )
 	while (std::getline(data, line))
 	{
 		str		key;
-		float	val;
+		double	val;
 
 		key = line.substr(0, 10);
 		val = std::strtof((line.substr(11, line.size() - 1)).c_str(), NULL);
@@ -54,7 +54,7 @@ bool	isWhitespace(unsigned char ch)
 void	BitcoinExchange::processFiles( void )
 {
 	str		line, date, value;
-	float	lfValue;
+	double	lfValue;
 	
 	std::getline(_input, line);
 	std::getline(_input, line);
@@ -85,8 +85,18 @@ void	BitcoinExchange::processFiles( void )
 			std::cerr << "Error: too large a number. " << std::endl;
 			continue ;
 		}
-		std::map<str, float>::iterator	it = _exchangeRates.lower_bound(date);
-		std::cout << date << " => [" << it->first << "]" << std::endl;
+		std::map<str, double>::iterator	it = _exchangeRates.lower_bound(date);
+		if (it == _exchangeRates.begin() && it->first != date) {
+			std::cerr << "Error: date too early => " << date << std::endl;
+			continue ;
+		}
+		if (it == _exchangeRates.end() && it->first != date) {
+			std::cerr << "Error: date not found => " << date << std::endl;
+			continue ;
+		}
+		it--;
+		std::cout << it->first << " => " << lfValue << " = " << it->second * lfValue;
+		std::cout << " [" << it->second << " * " << lfValue << "]" << std::endl;
 
 		// std::cout << ":" << date << ":" << " => " << ":" << value << ":" << std::endl;
 	}
