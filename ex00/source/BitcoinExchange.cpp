@@ -6,7 +6,7 @@
 /*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/21 17:01:55 by adbouras          #+#    #+#             */
-/*   Updated: 2025/06/23 18:01:17 by adbouras         ###   ########.fr       */
+/*   Updated: 2025/06/24 15:59:11 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void	BitcoinExchange::processFiles( void )
 		sstream	vStream(value);
 		vStream >> lfValue;
 		if (vStream.fail() || !vStream.eof()) {
-			std::cerr << RED << "\nError: bad value => " << value << RESET << std::endl;
+			std::cerr << RED << "\nError: bad value ➜ " << value << RESET << std::endl;
 			continue ; 
 		}
 		if (lfValue < 0) {
@@ -84,15 +84,15 @@ void	BitcoinExchange::processFiles( void )
 		}
 		std::map<str, double>::iterator	it = _exchangeRates.lower_bound(date);
 		if (it == _exchangeRates.begin() && it->first != date) {
-			std::cerr << RED << "\nError: date too early => " << date << RESET << std::endl;
+			std::cerr << RED << "\nError: date too early ➜ " << date << RESET << std::endl;
 			continue ;
 		}
 		if (it == _exchangeRates.end() && it->first != date) {
-			std::cerr << RED << "\nError: date not found => " << date << RESET << std::endl;
+			std::cerr << RED << "\nError: date not found ➜ " << date << RESET << std::endl;
 			continue ;
 		}
 		it--;
-		std::cout << "\n" << it->first << " => " << lfValue << " = " << it->second * lfValue << std::endl;
+		std::cout << "\n" << it->first << " ➜ " << lfValue << " = " << it->second * lfValue << std::endl;
 	}
 	
 }

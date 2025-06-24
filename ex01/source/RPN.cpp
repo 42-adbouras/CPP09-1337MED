@@ -6,7 +6,7 @@
 /*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 20:20:24 by codespace         #+#    #+#             */
-/*   Updated: 2025/06/24 14:47:16 by adbouras         ###   ########.fr       */
+/*   Updated: 2025/06/24 15:55:24 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,20 @@
 
 std::stack<int>	RPN::_stack;
 
-bool	isOperator( str& op )
+RPN::RPN( void ) { return ; }
+RPN::RPN( const RPN& right ) { static_cast<void>(right); }
+RPN::~RPN( void ) { return ; }
+RPN&	RPN::operator=( const RPN& right ) { static_cast<void>(right); return (*this); }
+
+static bool	isOperator( str& op )
 {
 	return (op == "+" || op == "-" || op == "*" || op == "/");
 }
 
 int	RPN::calculate( str& arg )
 {
-	std::stringstream	sstream(arg);
-	str					token;
+	strstream	sstream(arg);
+	str			token;
 
 	while (sstream >> token)
 	{
@@ -66,9 +71,9 @@ const char*	RPN::DevidingByZeroException::what() const throw()
 	return (DEV_BY_ZERO);
 }
 
-RPN::InvalidArgException::InvalidArgException( std::string& arg )  : _arg(arg)
+RPN::InvalidArgException::InvalidArgException( str& arg )  : _arg(arg)
 {
-	this->_err = INVALID_ARG + this->_arg + "." RESET;
+	this->_err = INVALID_ARG + this->_arg + RESET;
 }
 
 RPN::InvalidArgException::~InvalidArgException( void ) throw() { return ; }

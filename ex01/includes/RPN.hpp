@@ -6,7 +6,7 @@
 /*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 20:17:23 by codespace         #+#    #+#             */
-/*   Updated: 2025/06/24 14:45:13 by adbouras         ###   ########.fr       */
+/*   Updated: 2025/06/24 17:45:02 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,19 +24,25 @@
 #define GREEN	"\033[1;32m"
 #define RESET	"\033[0m"
 
-#define INVALID_ARG RED "[RNP::InvalidArgumentException] : "
-#define USAGE RED "[RPN::UsageException]: ./RPN <expression>" RESET
+#define INVALID_ARG RED "[RNP::InvalidArgumentException] ➜ "
+#define USAGE RED "[RPN::UsageException]: ./RPN \"<expression>\"" RESET
 #define ARGS_NUM RED "[RPN::NotEnoughNumbersException]" RESET
 #define DEV_BY_ZERO RED "[RPN::DevidingByZeroException]" RESET
 #define TOKEN_LEFT RED "[RPN::TokenLeftoverException]" RESET
 
-typedef std::string str;
+typedef std::string 		str;
+typedef std::stringstream	strstream;
 
 class RPN
 {
 private:
-	RPN( void ) {}
 	static std::stack<int>	_stack;
+	
+	RPN( void );
+	RPN( const RPN& right );
+	~RPN( void );
+	RPN&	operator=( const RPN& right );
+	
 public:
 	static int	calculate( str& arg );
 
@@ -54,10 +60,10 @@ public:
 	};
 	class InvalidArgException : public std::exception {
 	private:
-		std::string _arg;
-		std::string _err;
+		str _arg;
+		str _err;
 	public:
-		InvalidArgException( std::string& arg );
+		InvalidArgException( str& arg );
 		~InvalidArgException( void ) throw();
 		const char*	what() const throw();
 	};
