@@ -6,7 +6,7 @@
 /*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 20:17:23 by codespace         #+#    #+#             */
-/*   Updated: 2025/06/24 17:45:02 by adbouras         ###   ########.fr       */
+/*   Updated: 2025/06/25 14:18:18 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 #define RESET	"\033[0m"
 
 #define INVALID_ARG RED "[RNP::InvalidArgumentException] ➜ "
-#define USAGE RED "[RPN::UsageException]: ./RPN \"<expression>\"" RESET
+#define USAGE RED "[RPN::UsageException]: ./RPN \"<expressions>\"" RESET
 #define ARGS_NUM RED "[RPN::NotEnoughNumbersException]" RESET
 #define DEV_BY_ZERO RED "[RPN::DevidingByZeroException]" RESET
 #define TOKEN_LEFT RED "[RPN::TokenLeftoverException]" RESET
@@ -44,7 +44,7 @@ private:
 	RPN&	operator=( const RPN& right );
 	
 public:
-	static int	calculate( str& arg );
+	static int	calculate( const str& arg );
 
 	class UsageException : public std::exception {
 	public:

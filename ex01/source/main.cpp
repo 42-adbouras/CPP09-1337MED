@@ -6,12 +6,11 @@
 /*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 20:13:59 by codespace         #+#    #+#             */
-/*   Updated: 2025/06/24 17:49:29 by adbouras         ###   ########.fr       */
+/*   Updated: 2025/06/24 21:29:34 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RPN.hpp"
-#include <map>
 
 int	main( int ac, char** av)
 {

@@ -6,7 +6,7 @@
 /*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/21 17:01:55 by adbouras          #+#    #+#             */
-/*   Updated: 2025/06/24 15:59:11 by adbouras         ###   ########.fr       */
+/*   Updated: 2025/06/25 16:42:44 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,22 @@
 std::map<str, double>	BitcoinExchange::_exchangeRates;
 std::ifstream			BitcoinExchange::_input;
 
+BitcoinExchange::BitcoinExchange( void ) { }
+BitcoinExchange::BitcoinExchange( const BitcoinExchange& right ) { static_cast<void>(right); }
+BitcoinExchange::~BitcoinExchange( void ) { }
+BitcoinExchange&	BitcoinExchange::operator=( const BitcoinExchange& right )
+{
+	static_cast<void>(right); return (*this);
+}
+
 void	BitcoinExchange::openFiles( char *arg )
 {
-	std::ifstream	data("cpp_09/data.csv");
-	_input.open(arg);
+	std::ifstream	data(DATA_FILE);
+	str				line;
 
-	if (!arg || !_input.is_open() || !data.is_open()) {
-		std::cerr << "Error: could not open file." << std::endl;
-		exit(1);
-	}
-	str		line;
+	_input.open(arg);
+	if (!arg || !_input.is_open()) throw (BitcoinExchange::BadFileExcption(arg));
+	if (!data.is_open()) throw (BitcoinExchange::BadFileExcption(DATA_FILE));
 
 	std::getline(data, line);
 	while (std::getline(data, line))
@@ -41,58 +47,93 @@ void	BitcoinExchange::openFiles( char *arg )
 
 bool	validDate( str& date )
 {
-	return (date.length() == 10 && date[4] == '-' && date[7] == '-');
-}
+	str		day, month;
+	int		value;
 
-bool	isWhitespace(unsigned char ch)
-{
-	return std::isspace(ch);
+	if (date.length() != 10 || date[4] != '-' || date[7] != '-')
+		return (false);
+
+	month = date.substr(5, 2);
+	day   = date.substr(8, 2);
+
+	sstream	stream(month);
+	stream >> value;
+
+	if (value < 1 || value > 12)
+		return (false);
+
+	stream.clear(); stream.str(day); value = 0;
+	stream >> value;
+
+	if (value < 1 || value > 31)
+		return (false);
+	return (true);
 }
 
 void	BitcoinExchange::processFiles( void )
 {
 	str		line, date, value;
-	double	lfValue;
+	double	ldValue;
 	
 	std::getline(_input, line);
+	std::cout << std::left << std::setw(13) << "   Date" \
+	<< std::left << std::setw(15) << "   Amount" \
+	<< "Change" << std::endl;
 	while (std::getline(_input, line))
 	{
+		if (!line.length()) continue ;
 		if (line.find(" | ") == std::string::npos) {
-			std::cerr << RED << "\nError: bad input => " << line << RESET << std::endl;
+			std::cerr << BAD_INPUT << line << RESET << std::endl;
 			continue ;
 		}
 		date  = line.substr(0, line.find(" | "));
 		value = line.substr(line.find(" | ") + 3);
 		if (!validDate(date)) {
-			std::cerr << RED << "\nError: bad input => " << line << RESET << std::endl;
+			std::cerr << BAD_INPUT << line << RESET << std::endl;
 			continue ;	
 		}
 
 		sstream	vStream(value);
-		vStream >> lfValue;
+		vStream >> ldValue;
 		if (vStream.fail() || !vStream.eof()) {
-			std::cerr << RED << "\nError: bad value ➜ " << value << RESET << std::endl;
+			std::cerr << BAD_VALUE << value << RESET << std::endl;
 			continue ; 
 		}
-		if (lfValue < 0) {
-			std::cerr << RED << "\nError: not a positive number.\n" << RESET << std::endl;
+		if (ldValue < 0) {
+			std::cerr << NOT_POSITIVE << std::endl;
 			continue ;
 		}
-		if (lfValue > std::numeric_limits<int>::max()) {
-			std::cerr << RED << "\nError: too large a number.\n" << RESET << std::endl;
+		if (ldValue > 1000) {
+			std::cerr << LARGE_NUM << std::endl;
 			continue ;
 		}
 		std::map<str, double>::iterator	it = _exchangeRates.lower_bound(date);
+
 		if (it == _exchangeRates.begin() && it->first != date) {
-			std::cerr << RED << "\nError: date too early ➜ " << date << RESET << std::endl;
+			std::cerr << EARLY_DATE << date << RESET << std::endl;
 			continue ;
 		}
-		if (it == _exchangeRates.end() && it->first != date) {
-			std::cerr << RED << "\nError: date not found ➜ " << date << RESET << std::endl;
-			continue ;
-		}
-		it--;
-		std::cout << "\n" << it->first << " ➜ " << lfValue << " = " << it->second * lfValue << std::endl;
-	}
+		if (it == _exchangeRates.end()) it--;
 	
+		std::cout << std::left << std::setw(12) << it->first << "➜     ";
+		std::cout << std::left << std::setw(6)  << ldValue   << "=    ";
+		std::cout << it->second * ldValue << std::endl;
+	}
 }
+
+BitcoinExchange::BadFileExcption::BadFileExcption( const str& arg ) : _arg(arg)
+{
+	this->_err = BAD_FILE + _arg + RESET;
+}
+
+const char*	BitcoinExchange::BadFileExcption::what() const throw()
+{
+	return (this->_err.c_str());
+}
+
+const char*	BitcoinExchange::UsageExcption::what() const throw()
+{
+	return (USAGE);
+}
+
+BitcoinExchange::BadFileExcption::~BadFileExcption( void ) throw() { }
