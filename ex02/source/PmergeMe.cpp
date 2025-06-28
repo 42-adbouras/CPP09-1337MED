@@ -6,7 +6,7 @@
 /*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:42:33 by adbouras          #+#    #+#             */
-/*   Updated: 2025/06/27 20:29:03 by adbouras         ###   ########.fr       */
+/*   Updated: 2025/06/28 15:27:59 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,28 +47,64 @@ static std::vector<int>	parseInput( int ac, char** av )
 }
 
 template<typename Type>
-void	mergeInsertSort( Type& con, size_t start, size_t end )
+Type	genJS( size_t count )
 {
-	if (end - start < 2) return ;
-	size_t	mid = start + (end - start) / 2;
+	Type	indices;
 
-	mergeInsertSort(con, start, mid);
-	mergeInsertSort(con, mid, end);
-
-	Type	temp(con.begin() + start, con.begin() + end);
-	size_t	i = 0, j = mid - start, k = start;
-
-	while (i < mid - start && j < end - start)
-	{
-		if (temp[i] < temp[j])
-			con[k++] = temp[i++];
-		else
-			con[k++] = temp[j++];
+	size_t	i = 1, j = 3;
+	if (count > 0) indices.push_back(0);
+	if (count > 1) indices.push_back(1);
+	
+	while (indices.size() < count) {
+		size_t next = j + 2 * i;
+		if (next >= count) break ;
+		indices.push_back(next);
+		i = j;
+		j = next;
 	}
-	while (i < mid - start)
-		con[k++] = temp[i++];
-	while (j < end - start)
-		con[k++] = temp[j++];
+
+	for ( size_t idx = 0; idx < count; idx++) {
+		if (std::find(indices.begin(), indices.end(), idx) == indices.end())
+			indices.push_back(idx);
+	}
+	return (indices);
+}
+
+template<typename Type>
+void	fordJohnson( Type& con )
+{
+	if (con.size() < 2) return ;
+
+	Type	smalls, larges;
+
+	for (size_t i = 0; i + 1 < con.size(); i += 2) {
+		int	x = con[i], y = con[i + 1];
+		if (x < y) {
+			smalls.push_back(x);
+			larges.push_back(y);
+		} else {
+			smalls.push_back(y);
+			larges.push_back(x);
+		}
+	}
+	bool	odd = (con.size() % 2 != 0);
+	int		rem = odd ? con.back() : -1;
+	
+	fordJohnson(larges);
+	
+	Type	jacobStahl = genJS<Type>(smalls.size());
+	for (size_t i = 0; i < jacobStahl.size(); i++) {
+		if (i < smalls.size()) {
+			typename Type::iterator it = std::lower_bound(larges.begin(), larges.end(), smalls[i]);
+			larges.insert(it, smalls[i]);
+		}
+	}
+
+	if (odd) {
+		typename Type::iterator it = std::lower_bound(larges.begin(), larges.end(), rem);
+		larges.insert(it, rem);
+	}
+	con = larges;
 }
 
 void	PmergeMe::sort( int ac, char** av )
@@ -78,7 +114,7 @@ void	PmergeMe::sort( int ac, char** av )
 	for (size_t i = 0; i < _vec.size(); i++) {
 		std::cout << _vec[i] << " ";
 	}
-	mergeInsertSort(_vec, 0, _vec.size());
+	fordJohnson(_vec);
 	std::cout << std::endl;
 	for (size_t i = 0; i < _vec.size(); i++) {
 		std::cout << _vec[i] << " ";
