@@ -6,7 +6,7 @@
 /*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:42:41 by adbouras          #+#    #+#             */
-/*   Updated: 2025/06/28 15:25:03 by adbouras         ###   ########.fr       */
+/*   Updated: 2025/07/03 09:59:09 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,8 @@ private:
 	static std::vector<int>	_vec;
 	static std::deque<int>	_deq;
 public:
-	static void	sort( int ac, char** av );
+	static void	init( int ac, char** av );
+	static void	sort( void );
 
 	class UsageException : public std::exception {
 	public:
@@ -56,3 +57,4 @@ public:
 		const char*	what() const throw();
 	};
 };
+

@@ -6,7 +6,7 @@
 /*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:42:33 by adbouras          #+#    #+#             */
-/*   Updated: 2025/06/28 15:27:59 by adbouras         ###   ########.fr       */
+/*   Updated: 2025/07/03 10:16:55 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ PmergeMe&	PmergeMe::operator=( const PmergeMe& right )
 	static_cast<void>(right); return(*this);
 }
 
-static bool	isNum( const str& num )
+bool	isNum( const str& num )
 {
 	for (size_t i = 0; i < num.size(); i++) {
 		if(!std::isdigit(num[i])) return (false);
@@ -31,7 +31,7 @@ static bool	isNum( const str& num )
 	return (true);
 }
 
-static std::vector<int>	parseInput( int ac, char** av )
+std::vector<int>	parseInput( int ac, char** av )
 {
 	std::vector<int>	arr;
 	long				num;
@@ -46,36 +46,62 @@ static std::vector<int>	parseInput( int ac, char** av )
 	return (arr);
 }
 
-template<typename Type>
-Type	genJS( size_t count )
+
+std::vector<int>	jacobSthal(int size)
 {
-	Type	indices;
+	std::vector<int>	seq;
+	int 				next;
 
-	size_t	i = 1, j = 3;
-	if (count > 0) indices.push_back(0);
-	if (count > 1) indices.push_back(1);
+	seq.push_back(0);
+	if (size == 0) return (seq);
+	seq.push_back(1);
+
+	while (seq.back() < size) {
+		next = seq[seq.size() - 1] + 2 * seq[seq.size() - 2];
+		if (next >= size) break ;
+		seq.push_back(next);
+	}
+
+	return (seq);
+}
+
+std::vector<int>	genInsertOrder( size_t size )
+{
+	std::vector<int>	order;
+	std::vector<bool>	inserted(size, false);
+
+	std::vector<int>	jacob = jacobSthal(size);
+
+	for (size_t i = 1; i < jacob.size(); i++) {
+		size_t idx = jacob[i] - 1;
+		if (idx < size && !inserted[idx]) {
+			order.push_back(idx);
+			inserted[idx] = true;
+		}
+	}
 	
-	while (indices.size() < count) {
-		size_t next = j + 2 * i;
-		if (next >= count) break ;
-		indices.push_back(next);
-		i = j;
-		j = next;
+	for (size_t i = 0; i < size; i++) {
+		if (!inserted[i])
+			order.push_back(i);
 	}
-
-	for ( size_t idx = 0; idx < count; idx++) {
-		if (std::find(indices.begin(), indices.end(), idx) == indices.end())
-			indices.push_back(idx);
-	}
-	return (indices);
+	return (order);
 }
 
 template<typename Type>
-void	fordJohnson( Type& con )
+void	binaryInsert( Type& sorted, int val )
 {
-	if (con.size() < 2) return ;
+	typename Type::iterator	pos;
 
-	Type	smalls, larges;
+	pos = std::lower_bound(sorted.begin(), sorted.end(), val);
+	sorted.insert(pos, val);
+}
+
+template<typename Type>
+Type	fordJohnson( Type& con )
+{
+	if (con.size() < 2) return(con) ;
+
+	Type	smalls, larges, sorted;
 
 	for (size_t i = 0; i + 1 < con.size(); i += 2) {
 		int	x = con[i], y = con[i + 1];
@@ -89,37 +115,73 @@ void	fordJohnson( Type& con )
 	}
 	bool	odd = (con.size() % 2 != 0);
 	int		rem = odd ? con.back() : -1;
-	
-	fordJohnson(larges);
-	
-	Type	jacobStahl = genJS<Type>(smalls.size());
-	for (size_t i = 0; i < jacobStahl.size(); i++) {
-		if (i < smalls.size()) {
-			typename Type::iterator it = std::lower_bound(larges.begin(), larges.end(), smalls[i]);
-			larges.insert(it, smalls[i]);
-		}
-	}
 
-	if (odd) {
-		typename Type::iterator it = std::lower_bound(larges.begin(), larges.end(), rem);
-		larges.insert(it, rem);
+	sorted = fordJohnson(larges);
+
+	std::vector<int>	inOrder = genInsertOrder(smalls.size());
+
+	for (size_t i = 0; i < inOrder.size(); i++) {
+		int idx = inOrder[i];
+		binaryInsert(sorted, smalls[idx]);
 	}
-	con = larges;
+	
+	if (odd)
+		binaryInsert(sorted, rem);
+	return (sorted);
 }
 
-void	PmergeMe::sort( int ac, char** av )
+template<typename Type>
+bool	isSorted( const Type& con )
+{
+	if (con.empty()) return (false);
+
+	for (size_t i = 0; i < con.size() - 1; i++) {
+		if (con[i] > con[i + 1]) return (false);
+	}
+	return (true);
+}
+
+void	PmergeMe::init( int ac, char** av )
 {
 	_vec = parseInput(ac, av);
+	_deq = std::deque<int>(_vec.begin(), _vec.end());
 
-	for (size_t i = 0; i < _vec.size(); i++) {
-		std::cout << _vec[i] << " ";
-	}
-	fordJohnson(_vec);
-	std::cout << std::endl;
+	std::cout << "vector: ";
 	for (size_t i = 0; i < _vec.size(); i++) {
 		std::cout << _vec[i] << " ";
 	}
 	std::cout << std::endl;
+	std::cout << "deque : ";
+	for (size_t i = 0; i < _deq.size(); i++) {
+		std::cout << _deq[i] << " ";
+	}
+	std::cout << std::endl;
+}
+
+void	PmergeMe::sort( void )
+{
+	_vec = fordJohnson(_vec);
+	_deq = fordJohnson(_deq);
+	
+	std::cout << "vector: ";
+	for (size_t i = 0; i < _vec.size(); i++) {
+		std::cout << _vec[i] << " ";
+	} std::cout << std::endl;
+
+	std::cout << "deque : ";
+	for (size_t i = 0; i < _deq.size(); i++) {
+		std::cout << _deq[i] << " ";
+	} std::cout << std::endl;
+
+	if (isSorted(_vec)) {
+		std::cout << GREEN "[std::vector] is sorted." RESET << std::endl;
+	} else {
+		std::cout << RED "[std::vector] is not sorted!" RESET << std::endl;
+	} if (isSorted(_deq)) {
+		std::cout << GREEN "[std::deque]  is sorted." RESET << std::endl;
+	} else {
+		std::cout << RED "[std::deque] is not sorted!" RESET << std::endl;
+	}
 }
 
 const char*	PmergeMe::UsageException::what() const throw()
