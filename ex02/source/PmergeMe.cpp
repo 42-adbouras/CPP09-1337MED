@@ -6,14 +6,14 @@
 /*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:42:33 by adbouras          #+#    #+#             */
-/*   Updated: 2025/07/03 12:34:56 by adbouras         ###   ########.fr       */
+/*   Updated: 2025/07/03 13:50:30 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PmergeMe.hpp"
 
-std::vector<int> PmergeMe::_vec;
-std::deque<int>  PmergeMe::_deq;
+int_vec	PmergeMe::_vec;
+int_deq	PmergeMe::_deq;
 
 PmergeMe::PmergeMe( void ) { }
 PmergeMe::~PmergeMe( void ) { }
@@ -31,14 +31,15 @@ bool	isNum( const str& num )
 	return (true);
 }
 
-std::vector<int>	parseInput( int ac, char** av )
+int_vec	parseInput( int ac, char** av )
 {
-	std::vector<int>	arr;
-	long				num;
+	int_vec	arr;
+	long	num;
+	str		arg;
 
 	for (int i = 1; i < ac; i++) {
-		str	arg = av[i];
-		if(!isNum(arg)) throw (PmergeMe::InvalidArgException(arg));
+		arg = av[i];
+		if(!isNum(arg) || !arg.size()) throw (PmergeMe::InvalidArgException(arg));
 		num = std::strtol(arg.c_str(), NULL, 10);
 		if (num > std::numeric_limits<int>::max())
 			throw (PmergeMe::InvalidArgException(arg));
@@ -47,11 +48,11 @@ std::vector<int>	parseInput( int ac, char** av )
 	return (arr);
 }
 
-
-std::vector<int>	jacobSthal(int size)
+template<typename Type>
+Type	jacobSthal( int size )
 {
-	std::vector<int>	seq;
-	int 				next;
+	Type	seq;
+	int		next;
 
 	seq.push_back(0);
 	if (size == 0) return (seq);
@@ -66,12 +67,13 @@ std::vector<int>	jacobSthal(int size)
 	return (seq);
 }
 
-std::vector<int>	genInsertOrder( size_t size )
+template<typename Type>
+Type	genInsertOrder( size_t size )
 {
-	std::vector<int>	order;
+	Type				order;
 	std::vector<bool>	inserted(size, false);
 
-	std::vector<int>	jacob = jacobSthal(size);
+	Type	jacob = jacobSthal<Type>(size);
 
 	for (size_t i = 1; i < jacob.size(); i++) {
 		size_t idx = jacob[i] - 1;
@@ -80,7 +82,7 @@ std::vector<int>	genInsertOrder( size_t size )
 			inserted[idx] = true;
 		}
 	}
-	
+
 	for (size_t i = 0; i < size; i++) {
 		if (!inserted[i])
 			order.push_back(i);
@@ -114,18 +116,19 @@ Type	fordJohnson( Type& con )
 			larges.push_back(x);
 		}
 	}
+
 	bool	odd = (con.size() % 2 != 0);
 	int		rem = odd ? con.back() : -1;
 
-	sorted = fordJohnson(larges);
+	sorted = fordJohnson<Type>(larges);
 
-	std::vector<int>	inOrder = genInsertOrder(smalls.size());
+	Type	inOrder = genInsertOrder<Type>(smalls.size());
 
 	for (size_t i = 0; i < inOrder.size(); i++) {
 		int idx = inOrder[i];
 		binaryInsert(sorted, smalls[idx]);
 	}
-	
+
 	if (odd)
 		binaryInsert(sorted, rem);
 	return (sorted);
@@ -145,7 +148,7 @@ bool	isSorted( const Type& con )
 void	PmergeMe::init( int ac, char** av )
 {
 	_vec = parseInput(ac, av);
-	_deq = std::deque<int>(_vec.begin(), _vec.end());
+	_deq = int_deq(_vec.begin(), _vec.end());
 
 	std::cout << "before: ";
 	for (size_t i = 0; i < _vec.size(); i++) {
@@ -164,12 +167,12 @@ void	PmergeMe::sort( void )
 	struct timeval	t_start, t_end;
 
 	gettimeofday(&t_start, NULL);
-	_vec = fordJohnson(_vec);
+	_vec = fordJohnson<int_vec>(_vec);
 	gettimeofday(&t_end, NULL);
 	double	vec_dur = calculateTime(t_start, t_end);
 
 	gettimeofday(&t_start, NULL);
-	_deq = fordJohnson(_deq);
+	_deq = fordJohnson<int_deq>(_deq);
 	gettimeofday(&t_end, NULL);
 	double	deq_dur = calculateTime(t_start, t_end);
 	
