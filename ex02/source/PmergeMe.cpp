@@ -6,7 +6,7 @@
 /*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:42:33 by adbouras          #+#    #+#             */
-/*   Updated: 2025/07/03 10:16:55 by adbouras         ###   ########.fr       */
+/*   Updated: 2025/07/03 12:34:56 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ std::vector<int>	parseInput( int ac, char** av )
 {
 	std::vector<int>	arr;
 	long				num;
+
 	for (int i = 1; i < ac; i++) {
 		str	arg = av[i];
 		if(!isNum(arg)) throw (PmergeMe::InvalidArgException(arg));
@@ -146,39 +147,45 @@ void	PmergeMe::init( int ac, char** av )
 	_vec = parseInput(ac, av);
 	_deq = std::deque<int>(_vec.begin(), _vec.end());
 
-	std::cout << "vector: ";
+	std::cout << "before: ";
 	for (size_t i = 0; i < _vec.size(); i++) {
 		std::cout << _vec[i] << " ";
-	}
-	std::cout << std::endl;
-	std::cout << "deque : ";
-	for (size_t i = 0; i < _deq.size(); i++) {
-		std::cout << _deq[i] << " ";
 	}
 	std::cout << std::endl;
 }
 
+double	calculateTime(struct timeval t_start, struct timeval t_end)
+{
+	return (((t_end.tv_sec - t_start.tv_sec) * 1e6) + (t_end.tv_usec - t_start.tv_usec));
+}
+
 void	PmergeMe::sort( void )
 {
+	struct timeval	t_start, t_end;
+
+	gettimeofday(&t_start, NULL);
 	_vec = fordJohnson(_vec);
+	gettimeofday(&t_end, NULL);
+	double	vec_dur = calculateTime(t_start, t_end);
+
+	gettimeofday(&t_start, NULL);
 	_deq = fordJohnson(_deq);
+	gettimeofday(&t_end, NULL);
+	double	deq_dur = calculateTime(t_start, t_end);
 	
-	std::cout << "vector: ";
+	std::cout << "after : ";
 	for (size_t i = 0; i < _vec.size(); i++) {
 		std::cout << _vec[i] << " ";
 	} std::cout << std::endl;
 
-	std::cout << "deque : ";
-	for (size_t i = 0; i < _deq.size(); i++) {
-		std::cout << _deq[i] << " ";
-	} std::cout << std::endl;
-
 	if (isSorted(_vec)) {
-		std::cout << GREEN "[std::vector] is sorted." RESET << std::endl;
+		std::cout << GREEN "Time to process a range of " << _vec.size() \
+		<< " elements with [std::vector]: " << vec_dur << " us." RESET << std::endl;
 	} else {
 		std::cout << RED "[std::vector] is not sorted!" RESET << std::endl;
 	} if (isSorted(_deq)) {
-		std::cout << GREEN "[std::deque]  is sorted." RESET << std::endl;
+		std::cout << GREEN "Time to process a range of " << _deq.size() \
+		<< " elements with [std::deque ]: " << deq_dur << " us." RESET << std::endl;
 	} else {
 		std::cout << RED "[std::deque] is not sorted!" RESET << std::endl;
 	}
