@@ -6,7 +6,7 @@
 /*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/21 16:48:01 by adbouras          #+#    #+#             */
-/*   Updated: 2025/06/25 14:15:20 by adbouras         ###   ########.fr       */
+/*   Updated: 2025/07/04 11:33:20 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ int	main( int ac, char** av )
 		std::cerr << e.what() << std::endl;
 		return (1);
 	}
+	while (1);
 	BitcoinExchange::processFiles();
+	
 	return (0);
 }

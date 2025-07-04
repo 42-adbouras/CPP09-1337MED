@@ -6,7 +6,7 @@
 /*   By: adbouras <adbouras@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:42:33 by adbouras          #+#    #+#             */
-/*   Updated: 2025/07/03 13:50:30 by adbouras         ###   ########.fr       */
+/*   Updated: 2025/07/04 14:33:12 by adbouras         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,57 +49,6 @@ int_vec	parseInput( int ac, char** av )
 }
 
 template<typename Type>
-Type	jacobSthal( int size )
-{
-	Type	seq;
-	int		next;
-
-	seq.push_back(0);
-	if (size == 0) return (seq);
-	seq.push_back(1);
-
-	while (seq.back() < size) {
-		next = seq[seq.size() - 1] + 2 * seq[seq.size() - 2];
-		if (next >= size) break ;
-		seq.push_back(next);
-	}
-
-	return (seq);
-}
-
-template<typename Type>
-Type	genInsertOrder( size_t size )
-{
-	Type				order;
-	std::vector<bool>	inserted(size, false);
-
-	Type	jacob = jacobSthal<Type>(size);
-
-	for (size_t i = 1; i < jacob.size(); i++) {
-		size_t idx = jacob[i] - 1;
-		if (idx < size && !inserted[idx]) {
-			order.push_back(idx);
-			inserted[idx] = true;
-		}
-	}
-
-	for (size_t i = 0; i < size; i++) {
-		if (!inserted[i])
-			order.push_back(i);
-	}
-	return (order);
-}
-
-template<typename Type>
-void	binaryInsert( Type& sorted, int val )
-{
-	typename Type::iterator	pos;
-
-	pos = std::lower_bound(sorted.begin(), sorted.end(), val);
-	sorted.insert(pos, val);
-}
-
-template<typename Type>
 Type	fordJohnson( Type& con )
 {
 	if (con.size() < 2) return(con) ;
@@ -134,17 +83,6 @@ Type	fordJohnson( Type& con )
 	return (sorted);
 }
 
-template<typename Type>
-bool	isSorted( const Type& con )
-{
-	if (con.empty()) return (false);
-
-	for (size_t i = 0; i < con.size() - 1; i++) {
-		if (con[i] > con[i + 1]) return (false);
-	}
-	return (true);
-}
-
 void	PmergeMe::init( int ac, char** av )
 {
 	_vec = parseInput(ac, av);
@@ -164,34 +102,16 @@ double	calculateTime(struct timeval t_start, struct timeval t_end)
 
 void	PmergeMe::sort( void )
 {
-	struct timeval	t_start, t_end;
+	double vec_dur = getBenckmark<int_vec>(_vec);
+	double deq_dur = getBenckmark<int_deq>(_deq);
 
-	gettimeofday(&t_start, NULL);
-	_vec = fordJohnson<int_vec>(_vec);
-	gettimeofday(&t_end, NULL);
-	double	vec_dur = calculateTime(t_start, t_end);
-
-	gettimeofday(&t_start, NULL);
-	_deq = fordJohnson<int_deq>(_deq);
-	gettimeofday(&t_end, NULL);
-	double	deq_dur = calculateTime(t_start, t_end);
-	
 	std::cout << "after : ";
 	for (size_t i = 0; i < _vec.size(); i++) {
 		std::cout << _vec[i] << " ";
 	} std::cout << std::endl;
 
-	if (isSorted(_vec)) {
-		std::cout << GREEN "Time to process a range of " << _vec.size() \
-		<< " elements with [std::vector]: " << vec_dur << " us." RESET << std::endl;
-	} else {
-		std::cout << RED "[std::vector] is not sorted!" RESET << std::endl;
-	} if (isSorted(_deq)) {
-		std::cout << GREEN "Time to process a range of " << _deq.size() \
-		<< " elements with [std::deque ]: " << deq_dur << " us." RESET << std::endl;
-	} else {
-		std::cout << RED "[std::deque] is not sorted!" RESET << std::endl;
-	}
+	printStatus<int_vec>(_vec, true,  vec_dur);
+	printStatus<int_deq>(_deq, false, deq_dur);
 }
 
 const char*	PmergeMe::UsageException::what() const throw()
@@ -201,7 +121,7 @@ const char*	PmergeMe::UsageException::what() const throw()
 
 PmergeMe::InvalidArgException::InvalidArgException( str& arg ) : _arg(arg)
 {
-	_err = INVALID_ARG + _arg + RESET;
+	_err = INVALID_ARG + _arg + "\"" + RESET;
 }
 
 PmergeMe::InvalidArgException::~InvalidArgException( void ) throw() { }
